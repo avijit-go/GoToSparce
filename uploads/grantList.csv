@@ -1,0 +1,3 @@
+Amt Requested,Application No,Applied On,Amt Approved,Installment No,Name Of Grant Compensation,Purpose Of Grant,Grant Compensation Amt,Compensation Installment No,Reason For Escalation,Reference Doc,Reference Result Doc,Status,Survivor,Escalation,createdAt
+111111111,223344,17-Aug-2022,111111,112,Umang,36000,6,2e2e,https://kamo-api.herokuapp.com/KAMO_1661078651427_download.png,,Rejected,Kheyali,true,21-Aug-2022
+5000,909087,12-Aug-2022,2000,4,Konyashree,36000,6,test,https://kamo-api.herokuapp.com/KAMO_1660744307436_Img_2052.png,,Requested,Kheyali,true,17-Aug-2022
