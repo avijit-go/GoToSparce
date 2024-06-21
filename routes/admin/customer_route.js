@@ -25,7 +25,7 @@ CustomerRoute.get("/list", isAuthenticate, async(req,res) => {
                 ]
             }
         }
-        let result = await User.find(searchVal).select('fname lname email mobile register_with status').sort({_id:-1})
+        let result = await User.find(searchVal).sort({_id:-1})
 
         message = {
             error: false,
@@ -47,7 +47,7 @@ CustomerRoute.get("/list", isAuthenticate, async(req,res) => {
 */
 CustomerRoute.get("/:id", isAuthenticate, async(req,res) => {
     try{
-        let userDetails = await User.findOne({_id:req.params.id}).select('fname lname email mobile register_with status');
+        let userDetails = await User.findOne({_id:req.params.id});
         let userAddress = await Address.find({user_id:req.params.id});
         let userOrders = await Order.find({userId:req.params.id});
 

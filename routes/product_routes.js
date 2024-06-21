@@ -179,7 +179,7 @@ ProductRoute.get("/filter-products",  async(req,res) => {
             ]
         }
 
-        let makesData = await ProductVechicle.find(filter).select(select).populate(populate)
+        let makesData = await ProductVechicle.find(filter).populate(populate)
         let data = Array()
         data = makesData.map(e => {
             return e[type]
@@ -405,7 +405,7 @@ ProductRoute.get("/get-year-variant",async(req,res)=>{
                 path:"yearId",
                 select:"title"
             }
-           ]).select('yearId');
+           ])
         }
     
         if(req.query.searchvariant){
@@ -414,7 +414,7 @@ ProductRoute.get("/get-year-variant",async(req,res)=>{
                     path:"variantId",
                     select:"title"
                 }
-               ]).select('variantId');
+               ])
         }
         
         message = {
@@ -492,7 +492,7 @@ ProductRoute.get("/:id",  async(req,res) => {
             } 
         }
         
-        let reviews = await Review.find({prodId:req.params.id}).select('comment rating user_id  createdAt').populate([
+        let reviews = await Review.find({prodId:req.params.id}).populate([
             {path:"user_id", select: "fname lname register_with email mobile"}
         ]).sort({_id:-1});
         reviews = JSON.parse(JSON.stringify(reviews));
@@ -523,7 +523,7 @@ ProductRoute.get("/:id",  async(req,res) => {
             _id: {$ne: req.params.id},
             $and:[{catId:proDetails.catId},{subcat0Id:proDetails.subcat0Id},{subcat1Id:proDetails.subcat1Id}]
 
-        }).select('').populate([
+        }).populate([
             {
                 path:"catId", select: "title"
             },

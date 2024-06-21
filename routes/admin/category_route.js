@@ -105,18 +105,18 @@ CategoryRoute.get("/list",isAuthenticate, async (req, res) => {
 
         categoryData = JSON.parse(JSON.stringify(categoryData));
 
-        let subCategories = await Category.find({parentId:req.params.categoryId}).select('title slug parentId image description')
+        let subCategories = await Category.find({parentId:req.params.categoryId})
 
         subCategories = JSON.parse(JSON.stringify(subCategories));
         
         for(var i in subCategories){
-            let subcatData1 = await Category.find({parentId:subCategories[i]._id}).select('title slug parentId image description');
+            let subcatData1 = await Category.find({parentId:subCategories[i]._id});
             subcatData1 = JSON.parse(JSON.stringify(subcatData1))
             
             if(subcatData1.length > 0) subCategories[i].child1 = subcatData1;
             
             for(var j in subcatData1){
-                let subcatData2 = await Category.find({parentId:subcatData1[j]._id}).select('title slug parentId description');
+                let subcatData2 = await Category.find({parentId:subcatData1[j]._id});
                 subcatData2 = JSON.parse(JSON.stringify(subcatData2))
                 if(subcatData2.length > 0) subcatData1[i].child2 = subcatData2;
             }

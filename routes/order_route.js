@@ -165,7 +165,7 @@ OrderRoute.get("/list", isAuthenticate, async(req,res) => {
         var user = UserId(token)
         var userId = user.data._id;
 
-        var orderData = await Order.find({userId:userId}).populate([{ path: 'order_details.proId', select: 'title partNo origin' },{path:"userId",select:"fname"}]).select().sort({_id:-1});
+        var orderData = await Order.find({userId:userId}).populate([{ path: 'order_details.proId', select: 'title partNo origin' },{path:"userId",select:"fname"}]).sort({_id:-1});
         
         message = {
             error: false,

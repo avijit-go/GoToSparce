@@ -14,6 +14,7 @@ const RetailerNotification = require("../../models/retailernotification");
 **  Home Page
 */
 HomeRoute.get("/index", isAuthenticate, async(req,res) => {
+    
     try{
         let headers = req.headers;
         let token = headers.authorization.split(' ')[1];

@@ -9,8 +9,9 @@ const RetailerSupplier = require("../../models/retailersupplier")
 /*
 ** List Orders
 */
-OrderRoute.get("/list", isAuthenticate, async(req,res) => {
+OrderRoute.get("/list", async(req,res) => {
     try{
+        console.log("****************")
         let searchText = req.query.search;
         let customerType = req.query.customerType;
         let searchOrderNo = searchCustomer = {}
@@ -44,7 +45,7 @@ OrderRoute.get("/list", isAuthenticate, async(req,res) => {
                     match: searchCustomer
                 }
             ]
-        ).select('order_no createdAt order_price status').sort({_id:-1});
+        ).sort({_id:-1});
 
         const results = orderData.filter(e => {
             return e.userId != null;

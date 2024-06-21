@@ -158,7 +158,7 @@ CartRoute.post("/save", isAuthenticate, async(req,res) => {
         let CartData = await Cart.findOne({user_id:userId});
         CartData = JSON.parse(JSON.stringify(CartData));
         if(CartData){
-            CartData.products = await CartProduct.find({cartId:CartData._id}).select('proId quantity prodPrice totalPrice prodmrp totalmrp').populate([
+            CartData.products = await CartProduct.find({cartId:CartData._id}).populate([
                 {
                     path: "proId", select: "partNo title pro_no retailerPricePercentage customerPricePercentage"
                 }
@@ -233,7 +233,8 @@ CartRoute.post("/remove-item", isAuthenticate, async(req,res)=>{
             let CartData = await Cart.findOne({user_id:userId});
             CartData = JSON.parse(JSON.stringify(CartData));
             if(CartData){
-                CartData.products = await CartProduct.find({cartId:CartData._id}).select('proId quantity prodPrice totalPrice').populate([
+                CartData.products = await CartProduct.find({cartId:CartData._id})
+                .populate([
                     {
                         path: "proId", select: "partNo title pro_no retailerPricePercentage customerPricePercentage"
                     }
@@ -284,7 +285,7 @@ CartRoute.get("/view", isAuthenticate, async(req,res) => {
         let CartData = await Cart.findOne({user_id:userId});
         CartData = JSON.parse(JSON.stringify(CartData));
         if(CartData){
-            CartData.products = await CartProduct.find({cartId:CartData._id}).select('proId quantity prodPrice totalPrice prodmrp totalmrp').populate([
+            CartData.products = await CartProduct.find({cartId:CartData._id}).populate([
                 {
                     path: "proId", select: "partNo title pro_no retailerPricePercentage customerPricePercentage images"
                 }
