@@ -13,7 +13,6 @@ const Category = require("../models/category");
 CategoryRoute.get("/list", async (req, res) => {
   try {
     let CategoryData = await Category.find({ parentId: undefined })
-      .select("title description image slug")
       .sort({ _id: -1 });
 
     let countData = CategoryData.length;

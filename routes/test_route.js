@@ -143,7 +143,7 @@ TestRoute.post("/create-test-product", async(req,res) => {
     console.log(startWith)
     console.log(generateIndex(10,startWith));
 
-    let products = await Product.find().select('title partNo pro_no set_of_pcs createdAt').sort({_id:1});
+    let products = await Product.find().sort({_id:1});
     products = JSON.parse(JSON.stringify(products));
     let countPro = products.length;
 

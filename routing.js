@@ -106,4 +106,10 @@ router.use("/retailer/notification", RetailerNotificationRoute);
 router.use("/retailer/report", ReportManagmentRoute);
 //router.use("/retailer/available-notification", AvailableProductNotificationRoute);
 
+
+/* ============================ Retailer routes ===================================== */
+const BrandRoute = require("./routes/brand_route");
+
+router.use("/brand", BrandRoute)
+
 module.exports = router;

@@ -86,7 +86,6 @@ const UserId  = require("../helper/getUserToken");
         let WishlistData = await Wishlist.find({$and: [{ user_id: userId }, {user_type:userType}]}).populate([
             {
                 path:"proId",
-                select:"title catId subcat0Id subcat1Id mrp retailerDiscountedPrice retailerPricePercentage customerDiscountedPrice customerPricePercentage partNo pro_no images",
                 populate:([
                     {
                         path:"catId",
@@ -102,7 +101,7 @@ const UserId  = require("../helper/getUserToken");
                     }
                 ])
             }            
-        ]).select('deviceId ip_address user_id user_type createdAt').sort({_id:-1});
+        ]).sort({_id:-1});
 
         message = {
             error: false,

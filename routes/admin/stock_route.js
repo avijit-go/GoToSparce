@@ -44,7 +44,7 @@ StockRoute.get("/list",isAuthenticate, async(req,res)=>{
                     }
                 ]
             }
-        ]).select('stock_type count id_ref id_type date').sort({_id:-1});
+        ]).sort({_id:-1});
         StockData = JSON.parse(JSON.stringify(StockData)).map(e => {
             e.productId = e.proId?._id
             e.count = e.stock_type === 'stock_out' ? -e.count : e.count
@@ -366,6 +366,23 @@ StockRoute.get("/detail/:proId", isAuthenticate, async(req,res) => {
 });
 
 
+StockRoute.delete("/delete/:id", async (req, res) => {
+    try {
+        const result = await Stock.findByIdAndUpdate(
+            req.params.id,
+            { $set: { isDelete: true } },
+            { new: true, strict: false }
+        );
+        return res.status(200).json({ message: "Deleted", status: 200, result });
+    } catch (err) {
+        message = {
+            error: true,
+            message: "Operation Failed!",
+            data: err,
+        };
+        res.status(200).send(message);
+    }
+});
 
 
 
