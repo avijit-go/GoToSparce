@@ -12,8 +12,10 @@ const Category = require("../models/category");
  */
 CategoryRoute.get("/list", async (req, res) => {
   try {
-    let CategoryData = await Category.find({ parentId: undefined })
-      .sort({ _id: -1 });
+    let CategoryData = await Category.find(
+      { parentId: undefined },
+      { isDelete: { $ne: true } }
+    ).sort({ _id: -1 });
 
     let countData = CategoryData.length;
     message = {
@@ -139,8 +141,10 @@ CategoryRoute.delete("/delete/:categoryId", async (req, res) => {
       req.params.categoryId,
       { $set: { isDelete: true } },
       { new: true, strict: false }
-  );
-  return res.status(200).json({message: "Deleted catagory", status: 200, catagory: result})
+    );
+    return res
+      .status(200)
+      .json({ message: "Deleted catagory", status: 200, catagory: result });
   } catch (err) {
     message = {
       error: true,

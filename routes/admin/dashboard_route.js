@@ -1,3 +1,5 @@
+/** @format */
+
 require("dotenv").config();
 const express = require("express");
 const User = require("../../models/user");
@@ -10,263 +12,289 @@ const RetailerSupplier = require("../../models/retailersupplier");
 const Order = require("../../models/order");
 const DashboardRoute = express.Router();
 
+DashboardRoute.get("/list", async (req, res) => {
+  try {
+    let UserData = await User.find({
+      $and: [{ status: true }, { isDelete: { $ne: true } }],
+    })
+      .limit(5)
+      .sort({ _id: -1 });
 
-DashboardRoute.get("/list",async(req,res)=>{
-    try{
-        let UserData = await User.find({status:true}).limit(5).sort({_id:-1});
+    let wholesalerData = await User.find({
+      $and: [{ status: true }, { register_with: "wholesaler" }],
+    })
+      .limit(5)
+      .sort({ _id: -1 });
 
-        let wholesalerData = await User.find({$and:[{status:true},{register_with:"wholesaler"}]}).limit(5).sort({_id:-1});
+    let vehicleownerData = await User.find({
+      $and: [{ status: true }, { register_with: "vehicleowner" }],
+    })
+      .limit(5)
+      .sort({ _id: -1 });
 
-        let vehicleownerData = await User.find({$and:[{status:true},{register_with:"vehicleowner"}]}).limit(5).sort({_id:-1});
+    let productdata = await Product.find({ status: true })
+      .populate([
+        {
+          path: "catId",
+          select: "title",
+        },
+        {
+          path: "subcat0Id",
+          select: "title",
+        },
+        {
+          path: "subcat1Id",
+          select: "title",
+        },
+        {
+          path: "brandId",
+          select: "title",
+        },
+      ])
+      .limit(5)
+      .sort({ _id: -1 });
 
+    let retailerProductData = await RetailerProduct.find({})
+      .limit(5)
+      .sort({ _id: -1 });
 
-        let productdata = await Product.find({status:true}).populate([
-            {
-                path:"catId", select: "title"
-            },
-            {
-                path:"subcat0Id", select: "title"
-            },
-            {
-                path:"subcat1Id", select: "title"
-            },
-            {
-                path:"brandId", select: "title"
-            },
-        ]).limit(5).sort({_id:-1});
+    let retailerSupplierData = await RetailerSupplier.find({})
+      .limit(5)
+      .sort({ _id: -1 });
 
-        let retailerProductData = await RetailerProduct.find({}).limit(5).sort({_id:-1});
+    let retailerOrderSupplierData = await RetailerOrderSupplier.find({})
+      .limit(5)
+      .sort({ _id: -1 });
 
-        let retailerSupplierData = await RetailerSupplier.find({}).limit(5).sort({_id:-1});
+    let retailerCustomerData = await RetailerCustomer.find({})
+      .limit(5)
+      .sort({ _id: -1 });
 
-        let retailerOrderSupplierData = await RetailerOrderSupplier.find({}).limit(5).sort({_id:-1});
+    let retailerOrderData = await RetailerOrder.find({})
+      .limit(5)
+      .sort({ _id: -1 });
 
-        let retailerCustomerData = await RetailerCustomer.find({}).limit(5).sort({_id:-1});
+    let orderData = await Order.find({}).limit(5).sort({ _id: -1 });
 
-        let retailerOrderData = await RetailerOrder.find({}).limit(5).sort({_id:-1});
+    //////////////////////////// count of all data //////////////////////////
 
-        let orderData = await Order.find({}).limit(5).sort({_id:-1});
+    let Userlist = await User.find({ status: true });
 
-        //////////////////////////// count of all data //////////////////////////
+    let wholesalerlist = await User.find({
+      $and: [{ status: true }, { register_with: "wholesaler" }],
+    });
 
+    let vehicleownerlist = await User.find({
+      $and: [{ status: true }, { register_with: "vehicleowner" }],
+    });
 
-        let Userlist = await User.find({status:true});
+    let productlist = await Product.find({ status: true });
 
-        let wholesalerlist = await User.find({$and:[{status:true},{register_with:"wholesaler"}]});
+    let retailerProductlist = await RetailerProduct.find({});
 
-        let vehicleownerlist = await User.find({$and:[{status:true},{register_with:"vehicleowner"}]});
+    let retailerSupplierlist = await RetailerSupplier.find({});
 
-        let productlist = await Product.find({status:true});
+    let retailerOrderSupplierlist = await RetailerOrderSupplier.find({});
 
-        let retailerProductlist = await RetailerProduct.find({});
+    let retailerCustomerlist = await RetailerCustomer.find({});
 
-        let retailerSupplierlist = await RetailerSupplier.find({});
+    let retailerOrderlist = await RetailerOrder.find({});
 
-        let retailerOrderSupplierlist = await RetailerOrderSupplier.find({});
+    let orderlist = await Order.find({});
 
-        let retailerCustomerlist = await RetailerCustomer.find({});
+    /////////////////////////////////////// monthly user count ///////////////////////////////
 
-        let retailerOrderlist = await RetailerOrder.find({});
+    let monthWiseUserCount = await User.aggregate([
+      { $match: { status: true } },
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
 
-        let orderlist = await Order.find({});
+    let months = [
+      "jan",
+      "feb",
+      "mar",
+      "apr",
+      "may",
+      "jun",
+      "jul",
+      "aug",
+      "sep",
+      "oct",
+      "nov",
+      "dec",
+    ];
 
-       /////////////////////////////////////// monthly user count ///////////////////////////////
+    let monthWiseUser = [];
+    months.forEach((element, index) => {
+      let monthData = monthWiseUserCount.find((e) => e._id == index + 1);
+      // console.log(monthData);
+      monthWiseUser[index] = {
+        month: element,
+        count: monthData !== undefined ? monthData?.count : 0,
+      };
+    });
 
+    ////////////////////////////////// monthly Order count//////////////////////////
 
-        let monthWiseUserCount = await User.aggregate([
-            { "$match" : { status : true } },
-            {$group: {
-                _id: {$month: "$createdAt"}, 
-                count: {$sum: 1} 
-            }}
-        ]);
+    let monthWiseOrderCount = await Order.aggregate([
+      { $match: { status: "pending" } },
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          count: { $sum: "$amount" },
+        },
+      },
+    ]);
 
-        let months = [
-            "jan",
-            "feb",
-            "mar",
-            "apr",
-            "may",
-            "jun",
-            "jul",
-            "aug",
-            "sep",
-            "oct",
-            "nov",
-            "dec"
-        ]
+    let month = [
+      "jan",
+      "feb",
+      "mar",
+      "apr",
+      "may",
+      "jun",
+      "jul",
+      "aug",
+      "sep",
+      "oct",
+      "nov",
+      "dec",
+    ];
 
-        let monthWiseUser = [];
-            months.forEach((element, index) => {
-                let monthData = monthWiseUserCount.find(e => e._id == index+1);
-                // console.log(monthData);
-                monthWiseUser[index] = {
-                    month: element,
-                    count: (monthData !== undefined) ? monthData?.count : 0
-                }
+    let monthWiseOrder = [];
+    month.forEach((element, index) => {
+      let monthData = monthWiseOrderCount.find((e) => e._id == index + 1);
+      monthWiseOrder[index] = {
+        month: element,
+        count: monthData !== undefined ? monthData?.count : 0,
+      };
+    });
 
-            })
+    ////////////////////////////////// monthly retailer order count ///////////////////////////
 
+    let monthWiseRetailerOrderCount = await RetailerOrder.aggregate([
+      { $match: { status: "pending" } },
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
 
-        ////////////////////////////////// monthly Order count//////////////////////////
-        
-        
-        let monthWiseOrderCount = await Order.aggregate([
-            { "$match" : { status : "pending" } },
-            {$group: {
-                _id: {$month: "$createdAt"}, 
-                count: {$sum: "$amount"} 
-            }}
-        ]);
+    let monthlist = [
+      "jan",
+      "feb",
+      "mar",
+      "apr",
+      "may",
+      "jun",
+      "jul",
+      "aug",
+      "sep",
+      "oct",
+      "nov",
+      "dec",
+    ];
 
-        let month = [
-            "jan",
-            "feb",
-            "mar",
-            "apr",
-            "may",
-            "jun",
-            "jul",
-            "aug",
-            "sep",
-            "oct",
-            "nov",
-            "dec"
-        ]
+    let monthWiseRetailerOrder = [];
+    monthlist.forEach((element, index) => {
+      let monthData = monthWiseRetailerOrderCount.find(
+        (e) => e._id == index + 1
+      );
+      // console.log(monthData);
+      monthWiseRetailerOrder[index] = {
+        month: element,
+        count: monthData !== undefined ? monthData?.count : 0,
+      };
+    });
 
-        let monthWiseOrder = [];
-        month.forEach((element, index) => {
-            let monthData = monthWiseOrderCount.find(e => e._id == index+1);
-            monthWiseOrder[index] = {
-                month: element,
-                count: (monthData !== undefined) ? monthData?.count : 0
-            }
+    //////////////////////// month wise retailer supplier Order count//////////////////
 
-        })
+    let monthWiseRetailerSupplierOrderCount =
+      await RetailerOrderSupplier.aggregate([
+        { $match: { status: "pending" } },
+        {
+          $group: {
+            _id: { $month: "$createdAt" },
+            count: { $sum: 1 },
+          },
+        },
+      ]);
 
+    let monthwise = [
+      "jan",
+      "feb",
+      "mar",
+      "apr",
+      "may",
+      "jun",
+      "jul",
+      "aug",
+      "sep",
+      "oct",
+      "nov",
+      "dec",
+    ];
 
-        ////////////////////////////////// monthly retailer order count ///////////////////////////
+    let monthWiseRetailerSupplierOrder = [];
+    monthwise.forEach((element, index) => {
+      let monthData = monthWiseRetailerSupplierOrderCount.find(
+        (e) => e._id == index + 1
+      );
+      // console.log(monthData);
+      monthWiseRetailerSupplierOrder[index] = {
+        month: element,
+        count: monthData !== undefined ? monthData?.count : 0,
+      };
+    });
 
-
-        let monthWiseRetailerOrderCount = await RetailerOrder.aggregate([
-            { "$match" : {status : "pending"} },
-            {$group: {
-                _id: {$month: "$createdAt"}, 
-                count: {$sum: 1} 
-            }}
-        ]);
-
-        let monthlist = [
-            "jan",
-            "feb",
-            "mar",
-            "apr",
-            "may",
-            "jun",
-            "jul",
-            "aug",
-            "sep",
-            "oct",
-            "nov",
-            "dec"
-        ]
-
-        let monthWiseRetailerOrder = [];
-        monthlist.forEach((element, index) => {
-                let monthData = monthWiseRetailerOrderCount.find(e => e._id == index+1);
-                // console.log(monthData);
-                monthWiseRetailerOrder[index] = {
-                    month: element,
-                    count: (monthData !== undefined) ? monthData?.count : 0
-                }
-
-            })
-
-
-        //////////////////////// month wise retailer supplier Order count//////////////////
-
-        let monthWiseRetailerSupplierOrderCount = await RetailerOrderSupplier.aggregate([
-            { "$match" : {status : "pending"} },
-            {$group: {
-                _id: {$month: "$createdAt"}, 
-                count: {$sum: 1} 
-            }}
-        ]);
-
-        let monthwise = [
-            "jan",
-            "feb",
-            "mar",
-            "apr",
-            "may",
-            "jun",
-            "jul",
-            "aug",
-            "sep",
-            "oct",
-            "nov",
-            "dec"
-        ]
-
-        let monthWiseRetailerSupplierOrder = [];
-        monthwise.forEach((element, index) => {
-                let monthData = monthWiseRetailerSupplierOrderCount.find(e => e._id == index+1);
-                // console.log(monthData);
-                monthWiseRetailerSupplierOrder[index] = {
-                    month: element,
-                    count: (monthData !== undefined) ? monthData?.count : 0
-                }
-
-            })
-
-
-        
-
-
-
-        message = {
-            error:false,
-            message:"Dashboard Data",
-            data: {
-                latestUser:UserData,
-                latestWholesaler:wholesalerData,
-                latestVehicleowner:vehicleownerData,
-                latestProduct:productdata,
-                latesrRetailerProduct:retailerProductData,
-                latestRetailerSupplier:retailerSupplierData,
-                latesrRetailerOrderSupplier:retailerOrderSupplierData,
-                latestRetailerCustomer:retailerCustomerData,
-                latestRetailerOrder:retailerOrderData,
-                latestOrder:orderData,
-                totalUser:Userlist.length,
-                totalWholesaler:wholesalerlist.length,
-                totalVehicleowner:vehicleownerlist.length,
-                totalProduct:productlist.length,
-                totalRetailerProduct:retailerProductlist.length,
-                totalRetailerSupplier:retailerSupplierlist.length,
-                totalRetailerOrderSupplier:retailerOrderSupplierlist.length,
-                totalRetailerCustomer:retailerCustomerlist.length,
-                totalRetailerOrder:retailerOrderlist.length,
-                totalOrder:orderlist.length,
-            },
-            monthData:{
-                monthWiseUser,
-               // monthWiseOrder,
-                monthWiseRetailerOrder,
-                monthWiseRetailerSupplierOrder
-                
-            }
-
-        };
-        return res.status(200).send(message);
-    }catch(err){
-        message = {
-            error:true,
-            message:"Operation Failed",
-            data:err.toString()
-        };
-        return res.status(200).send(message);
-    }
+    message = {
+      error: false,
+      message: "Dashboard Data",
+      data: {
+        latestUser: UserData,
+        latestWholesaler: wholesalerData,
+        latestVehicleowner: vehicleownerData,
+        latestProduct: productdata,
+        latesrRetailerProduct: retailerProductData,
+        latestRetailerSupplier: retailerSupplierData,
+        latesrRetailerOrderSupplier: retailerOrderSupplierData,
+        latestRetailerCustomer: retailerCustomerData,
+        latestRetailerOrder: retailerOrderData,
+        latestOrder: orderData,
+        totalUser: Userlist.length,
+        totalWholesaler: wholesalerlist.length,
+        totalVehicleowner: vehicleownerlist.length,
+        totalProduct: productlist.length,
+        totalRetailerProduct: retailerProductlist.length,
+        totalRetailerSupplier: retailerSupplierlist.length,
+        totalRetailerOrderSupplier: retailerOrderSupplierlist.length,
+        totalRetailerCustomer: retailerCustomerlist.length,
+        totalRetailerOrder: retailerOrderlist.length,
+        totalOrder: orderlist.length,
+      },
+      monthData: {
+        monthWiseUser,
+        // monthWiseOrder,
+        monthWiseRetailerOrder,
+        monthWiseRetailerSupplierOrder,
+      },
+    };
+    return res.status(200).send(message);
+  } catch (err) {
+    message = {
+      error: true,
+      message: "Operation Failed",
+      data: err.toString(),
+    };
+    return res.status(200).send(message);
+  }
 });
 
 module.exports = DashboardRoute;

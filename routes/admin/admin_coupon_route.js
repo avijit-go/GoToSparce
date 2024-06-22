@@ -1,3 +1,5 @@
+/** @format */
+
 require("dotenv").config();
 const express = require("express");
 const AdminCoupon = require("../../models/admin_coupon");
@@ -10,7 +12,9 @@ const isAuthenticate = require("../../middleware/authcheck");
 
 AdminCouponRoute.get("/list", isAuthenticate, async (req, res) => {
   try {
-    const CouponData = await AdminCoupon.find({}).sort({ _id: -1 });
+    const CouponData = await AdminCoupon.find({ isDelete: { $ne: true } }).sort(
+      { _id: -1 }
+    );
     message = {
       error: false,
       message: "All Coupons list",
