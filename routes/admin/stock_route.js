@@ -1,141 +1,143 @@
+/** @format */
+
 require("dotenv").config();
 const express = require("express");
 const Stock = require("../../models/stock");
 const Category = require("../../models/category");
 const RetailerStock = require("../../models/retailerstock");
 const StockRoute = express.Router();
-const isAuthenticate = require("../../middleware/authcheck");  /* For GTS Admin */
+const isAuthenticate = require("../../middleware/authcheck"); /* For GTS Admin */
 const Product = require("../../models/product");
 const { json } = require("body-parser");
 
+StockRoute.get("/list", isAuthenticate, async (req, res) => {
+  try {
+    let searchByProId = {};
+    let messageText = "All stock list";
+    let proId = req.query.proId;
+    if (proId) {
+      searchByProId = { proId: proId };
+      messageText = "Product wise stock list";
+    }
+    // console.log(proId)
+    // return res.send(req.params);
 
-StockRoute.get("/list",isAuthenticate, async(req,res)=>{
-    try{
-        let searchByProId = {}
-        let messageText = "All stock list";
-        let proId = req.query.proId;
-        if(proId){
-            searchByProId = {proId:proId}
-            messageText = "Product wise stock list"
-        }
-        // console.log(proId)
-        // return res.send(req.params);
-        
-        let StockData = await Stock.find(searchByProId).populate([
+    let StockData = await Stock.find(searchByProId)
+      .find({ isDelete: { $ne: true } })
+      .populate([
+        {
+          path: "proId",
+          select: "title catId subcat0Id subcat1Id subcat2Id",
+          populate: [
             {
-                path:"proId",
-                select:"title catId subcat0Id subcat1Id subcat2Id",
-                populate: [
-                    {
-                        path: "catId",
-                        select: "title"
-                    },
-                    {
-                        path: "subcat0Id",
-                        select: "title"
-                    },
-                    {
-                        path: "subcat1Id",
-                        select: "title"
-                    },
-                    {
-                        path: "subcat2Id",
-                        select: "title"
-                    }
-                ]
-            }
-        ]).sort({_id:-1});
-        StockData = JSON.parse(JSON.stringify(StockData)).map(e => {
-            e.productId = e.proId?._id
-            e.count = e.stock_type === 'stock_out' ? -e.count : e.count
-            return e
-        })
+              path: "catId",
+              select: "title",
+            },
+            {
+              path: "subcat0Id",
+              select: "title",
+            },
+            {
+              path: "subcat1Id",
+              select: "title",
+            },
+            {
+              path: "subcat2Id",
+              select: "title",
+            },
+          ],
+        },
+      ])
+      .sort({ _id: -1 });
+    StockData = JSON.parse(JSON.stringify(StockData)).map((e) => {
+      e.productId = e.proId?._id;
+      e.count = e.stock_type === "stock_out" ? -e.count : e.count;
+      return e;
+    });
 
-        let customStockData = Array() 
+    let customStockData = Array();
 
-        for (let index = 0; index < StockData.length; index++) {
-            const stockElement = StockData[index];
-            const stockIndex = customStockData.findIndex(e => e.productId === stockElement.productId)
-            if (stockIndex > -1) {
-                customStockData[stockIndex].count += stockElement.count
-            } else {
-                customStockData.push(stockElement)
-            }
-        }
-        message = {
-            error: false,
-            message: messageText,
-            data: customStockData
-        }
-        res.status(200).send(message);
-    } catch(err) {
-        message = {
-            error: true,
-            message: "Operation Failed",
-            data:err.toString()
-        }
-        res.status(200).send(message);
+    for (let index = 0; index < StockData.length; index++) {
+      const stockElement = StockData[index];
+      const stockIndex = customStockData.findIndex(
+        (e) => e.productId === stockElement.productId
+      );
+      if (stockIndex > -1) {
+        customStockData[stockIndex].count += stockElement.count;
+      } else {
+        customStockData.push(stockElement);
+      }
     }
-
+    message = {
+      error: false,
+      message: messageText,
+      data: customStockData,
+    };
+    res.status(200).send(message);
+  } catch (err) {
+    message = {
+      error: true,
+      message: "Operation Failed",
+      data: err.toString(),
+    };
+    res.status(200).send(message);
+  }
 });
 
-
-StockRoute.post("/create-bulk",isAuthenticate, async(req,res)=>{
-    try{
-        const productData = await Product.find({status: true})
-        const stockData = Array()
-        for (let index = 0; index < productData.length; index++) {
-            const element = productData[index];
-            stockData.push({
-                proId: productData[index]._id,
-                stock_type: "initial"
-            })
-        }
-        const result = await Stock.insertMany(stockData);
-        message = {
-            error: false,
-            message: "Bulk stock added successfully",
-            data:result
-        }
-        res.status(200).send(message);
-    }catch(err){
-        message = {
-            error: true,
-            message: "Operation Failed",
-            data:err
-        }
-        res.status(200).send(message);
+StockRoute.post("/create-bulk", isAuthenticate, async (req, res) => {
+  try {
+    const productData = await Product.find({ status: true });
+    const stockData = Array();
+    for (let index = 0; index < productData.length; index++) {
+      const element = productData[index];
+      stockData.push({
+        proId: productData[index]._id,
+        stock_type: "initial",
+      });
     }
-
+    const result = await Stock.insertMany(stockData);
+    message = {
+      error: false,
+      message: "Bulk stock added successfully",
+      data: result,
+    };
+    res.status(200).send(message);
+  } catch (err) {
+    message = {
+      error: true,
+      message: "Operation Failed",
+      data: err,
+    };
+    res.status(200).send(message);
+  }
 });
 
-StockRoute.post("/create",isAuthenticate, async(req,res)=>{
-    try{
-        const StockData = new Stock(req.body);
-        const result = await StockData.save();
-        message = {
-            error: false,
-            message: "stock added successfully",
-            data:result
-        }
-        res.status(200).send(message);
-    }catch(err){
-        message = {
-            error: true,
-            message: "Operation Failed",
-            data:err
-        }
-        res.status(200).send(message);
-    }
-
+StockRoute.post("/create", isAuthenticate, async (req, res) => {
+  try {
+    const StockData = new Stock(req.body);
+    const result = await StockData.save();
+    message = {
+      error: false,
+      message: "stock added successfully",
+      data: result,
+    };
+    res.status(200).send(message);
+  } catch (err) {
+    message = {
+      error: true,
+      message: "Operation Failed",
+      data: err,
+    };
+    res.status(200).send(message);
+  }
 });
 
 // StockRoute.get("/list", isAuthenticate, async(req,res) => {
 //     try{
 //         let stockData = [];
-        
+
 //         console.log(req.query);
-        
+
 //         var searchText = req.query.search
 //         var catId = req.query.catId;
 //         var subcatId = req.query.subcatId;
@@ -150,9 +152,9 @@ StockRoute.post("/create",isAuthenticate, async(req,res)=>{
 //         if(searchText){
 //             searchAnd = {title: {$regex: searchText, $options: 'i'}}
 //         }
-        
+
 //         console.log(subconcatAnd);
-        
+
 //         stockData = await RetailerStock.find({
 //             $and:[
 //                 concatAnd , subconcatAnd
@@ -160,7 +162,7 @@ StockRoute.post("/create",isAuthenticate, async(req,res)=>{
 //             }).populate(
 //             [
 //                 {
-//                     path: "proId", 
+//                     path: "proId",
 //                     select: "proTitle price",
 //                     // populate:{
 //                     //     path:"proId",
@@ -170,19 +172,19 @@ StockRoute.post("/create",isAuthenticate, async(req,res)=>{
 //                         searchAnd
 //                     ]}
 //                 },
-//                 {   
-//                     path: "catId", 
+//                 {
+//                     path: "catId",
 //                     select: "title",
 //                 },
 //                 {
-//                     path: "subcatId", 
+//                     path: "subcatId",
 //                     select: "title",
 //                 }
 //             ]
-//         ).distinct("proId"); 
+//         ).distinct("proId");
 
 //         stockData = JSON.parse(JSON.stringify(stockData))
-      
+
 //       //  console.log("stockData",stockData);
 
 //         let productStockData = [];
@@ -193,20 +195,19 @@ StockRoute.post("/create",isAuthenticate, async(req,res)=>{
 //             let result = await RetailerStock.find({proId:proId}).populate(
 //                 [
 //                     {
-//                         path: "proId", 
+//                         path: "proId",
 //                         select: "proTitle price",
 //                     },
-//                     {   
-//                         path: "catId", 
+//                     {
+//                         path: "catId",
 //                         select: "title",
 //                     },
 //                     {
-//                         path: "subcatId", 
+//                         path: "subcatId",
 //                         select: "title",
 //                     }
 //                 ]
 //             );
-
 
 //             let stockInData = await RetailerStock.find({
 //                 $and:[
@@ -217,15 +218,15 @@ StockRoute.post("/create",isAuthenticate, async(req,res)=>{
 //             }).populate(
 //                     [
 //                         {
-//                             path: "proId", 
+//                             path: "proId",
 //                             select: "proTitle price",
 //                         },
-//                         {   
-//                             path: "catId", 
+//                         {
+//                             path: "catId",
 //                             select: "title",
 //                         },
 //                         {
-//                             path: "subcatId", 
+//                             path: "subcatId",
 //                             select: "title",
 //                         }
 //                     ]
@@ -240,7 +241,6 @@ StockRoute.post("/create",isAuthenticate, async(req,res)=>{
 //                  let getSubcat = await Category.findOne({_id:subcatId});
 //                  var subcatTitle = getSubcat?.title;
 
-    
 //                //console.log("stockInData", stockInData[0]?.catId?._id);
 
 //             let stockOutData = await RetailerStock.find({$and:[//{retailerId:retailerId},
@@ -251,21 +251,20 @@ StockRoute.post("/create",isAuthenticate, async(req,res)=>{
 //                 {proId:proId},
 //                 {stock_type:"initial"}]}).populate([
 //                     {
-//                         path: "proId", 
+//                         path: "proId",
 //                         select: "proTitle price",
 //                     },
-//                     {   
-//                         path: "catId", 
+//                     {
+//                         path: "catId",
 //                         select: "title",
 //                     },
 //                     {
-//                         path: "subcatId", 
+//                         path: "subcatId",
 //                         select: "title",
 //                     }
 //                 ]);
 
 //            //console.log("stockinitialData",stockinitialData);
-
 
 //             stockinitialData = JSON.parse(JSON.stringify(stockinitialData));
 //             let initial = 0;
@@ -288,7 +287,6 @@ StockRoute.post("/create",isAuthenticate, async(req,res)=>{
 //                 sumOUT += stockOutData[i].quantity;
 //             }
 
-            
 //             let balance = initial+(sumIn - sumOUT);
 
 //             const stockDetails =  {
@@ -306,17 +304,16 @@ StockRoute.post("/create",isAuthenticate, async(req,res)=>{
 //         }
 
 //         console.log("productStockData",productStockData);
-        
 
 //         const resData = stockData.filter(e => {
 //             return e.proId != null;
 //         })
-                
+
 //         message = {
 //             error: false,
 //             message: "My All Stocks",
-//             data: productStockData               
-            
+//             data: productStockData
+
 //         }
 
 //         return res.status(200).send(message);
@@ -335,56 +332,47 @@ StockRoute.post("/create",isAuthenticate, async(req,res)=>{
  * Update stock
  */
 
-StockRoute.get("/detail/:proId", isAuthenticate, async(req,res) => {
-    try{
-        var proId = req.params.proId;
-        let stockData = await Stock.find({proId:proId}).populate(
-            [
-                { path: "proId", select: "title" }
-            ]
-        ).sort({_id:-1});
-        
+StockRoute.get("/detail/:proId", isAuthenticate, async (req, res) => {
+  try {
+    var proId = req.params.proId;
+    let stockData = await Stock.find({ proId: proId })
+      .populate([{ path: "proId", select: "title" }])
+      .sort({ _id: -1 });
 
-        message = {
-            error: false,
-            message: "Product stock logs for admin",
-            data: stockData
-        }
+    message = {
+      error: false,
+      message: "Product stock logs for admin",
+      data: stockData,
+    };
 
-        return res.status(200).send(message);
+    return res.status(200).send(message);
+  } catch (err) {
+    message = {
+      error: true,
+      message: "Operation failed",
+      data: String(err),
+    };
 
-
-    }catch(err){
-            message = {
-				error: true,
-				message: "Operation failed",
-                data: String(err)
-			};
-      
-            return res.status(400).send(message);
-        }
+    return res.status(400).send(message);
+  }
 });
-
 
 StockRoute.delete("/delete/:id", async (req, res) => {
-    try {
-        const result = await Stock.findByIdAndUpdate(
-            req.params.id,
-            { $set: { isDelete: true } },
-            { new: true, strict: false }
-        );
-        return res.status(200).json({ message: "Deleted", status: 200, result });
-    } catch (err) {
-        message = {
-            error: true,
-            message: "Operation Failed!",
-            data: err,
-        };
-        res.status(200).send(message);
-    }
+  try {
+    const result = await Stock.findByIdAndUpdate(
+      req.params.id,
+      { $set: { isDelete: true } },
+      { new: true, strict: false }
+    );
+    return res.status(200).json({ message: "Deleted", status: 200, result });
+  } catch (err) {
+    message = {
+      error: true,
+      message: "Operation Failed!",
+      data: err,
+    };
+    res.status(200).send(message);
+  }
 });
-
-
-
 
 module.exports = StockRoute;

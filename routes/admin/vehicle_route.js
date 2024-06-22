@@ -35,27 +35,29 @@ VehicleRoute.post("/create",isAuthenticate,async(req,res)=>{
 
 VehicleRoute.get("/list",isAuthenticate,async(req,res)=>{
     try{
-        let VehicleData = await Vehicle.find({}).populate([
-            {
-                path:"vehicle_type",
-                select:"title"
-            },
-            {
-                path:"makeId",
-                select:"title"
-            },
-            {
-                path:"modelId",
-                select:"title"
-            },
-            {
-                path:"yearId",
-                select:"title"
-            },
-            {
-                path:"variantId",
-                select:"title"
-            },
+        let VehicleData = await Vehicle.find({
+          isDelete: { $ne: true },
+        }).populate([
+          {
+            path: "vehicle_type",
+            select: "title",
+          },
+          {
+            path: "makeId",
+            select: "title",
+          },
+          {
+            path: "modelId",
+            select: "title",
+          },
+          {
+            path: "yearId",
+            select: "title",
+          },
+          {
+            path: "variantId",
+            select: "title",
+          },
         ]);
 
         message = {

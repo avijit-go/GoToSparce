@@ -1,17 +1,18 @@
+/** @format */
+
 require("dotenv").config();
-const express = require('express');
+const express = require("express");
 const RetailerProtfolio = require("../../models/retailerportfolio");
 const RetailerProtfolioRoute = express.Router();
 const isAuthenticate = require("../../middleware/authcheck");
 const User = require("../../helper/getUserToken");
 const Product = require("../../models/product");
 const AdminNotification = require("../../models/adminNotification");
-const ProductVechicle = require("../../models/product_vehicles")
+const ProductVechicle = require("../../models/product_vehicles");
 
 /**
  * product search
  */
-
 
 //  RetailerProtfolioRoute.post("/search-save",isAuthenticate, async(req,res) => {
 //     try{
@@ -70,11 +71,11 @@ const ProductVechicle = require("../../models/product_vehicles")
 //                         let adminNotificationData = {
 //                             'retailerId' : retailerId,
 //                             'retailerNotificationId': retailerNotificationId,
-//                             'message':   "Unavailable item for retailer"                          
+//                             'message':   "Unavailable item for retailer"
 //                         }
 //                         await AdminNotification.create(adminNotificationData);
 //                     }
-                   
+
 //                     let listRequestedItems = await RetailerProtfolio.find({retailerId:retailerId}).populate([
 //                         {
 //                             path:"makeId",
@@ -97,7 +98,7 @@ const ProductVechicle = require("../../models/product_vehicles")
 //                     }
 //                     return res.status(200).send(message)
 //                 }
-                
+
 //             }
 //         } else {
 //             let listRequestedItems = await RetailerProtfolio.find({retailerId:retailerId}).populate([
@@ -122,7 +123,6 @@ const ProductVechicle = require("../../models/product_vehicles")
 //             }
 //             return res.status(200).send(message)
 //         }
-        
 
 //     }catch(err){
 //         message = {
@@ -134,133 +134,149 @@ const ProductVechicle = require("../../models/product_vehicles")
 //     }
 // });
 
-RetailerProtfolioRoute.post("/check",isAuthenticate, async(req,res) => {
-    try{
-        let headers = req.headers;
-        let token = headers.authorization.split(' ')[1];
-        let user = User(token);
+RetailerProtfolioRoute.post("/check", isAuthenticate, async (req, res) => {
+  try {
+    let headers = req.headers;
+    let token = headers.authorization.split(" ")[1];
+    let user = User(token);
 
-        if(!user.data.register_with || user.data.register_with != 'wholesaler'){
-            message = {
-                error: true,
-                message: "You are not logged in as Retailer",
-                data: {}
-            }
-            return res.status(200).send(message)
-        }
-        let retailerId = user.data._id;
-        /* +++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-        let partNo = req.query.partNo;
-        let makeId = req.query.makeId;
-        let modelId = req.query.modelId;
+    if (!user.data.register_with || user.data.register_with != "wholesaler") {
+      message = {
+        error: true,
+        message: "You are not logged in as Retailer",
+        data: {},
+      };
+      return res.status(200).send(message);
+    }
+    let retailerId = user.data._id;
+    /* +++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+    let partNo = req.query.partNo;
+    let makeId = req.query.makeId;
+    let modelId = req.query.modelId;
 
-        let isProdExist = true;
-        let protfolioList = await RetailerProtfolio.find({$and:[{retailerId:retailerId},{partNo:partNo},{makeId:makeId},{modelId:modelId}]});
+    let isProdExist = true;
+    let protfolioList = await RetailerProtfolio.find({
+      $and: [
+        { retailerId: retailerId },
+        { partNo: partNo },
+        { makeId: makeId },
+        { modelId: modelId },
+      ],
+    });
 
-        if(protfolioList.length>0){
-            message = {
-                error:true,
-                message:"Product already exists in portfolio list",
-                data:{}
-            }
-            return res.status(200).send(message);
-        }
+    if (protfolioList.length > 0) {
+      message = {
+        error: true,
+        message: "Product already exists in portfolio list",
+        data: {},
+      };
+      return res.status(200).send(message);
+    }
 
-        let checkProd = await Product.findOne({partNo:partNo});
+    let checkProd = await Product.findOne({ partNo: partNo });
 
-        if(checkProd){
-            let checkProdVehMake = await ProductVechicle.find({$and:[{prodId: checkProd._id},{makeId:makeId}]});
-            if(checkProdVehMake.length > 0){
-                let checkProdVehModel = await ProductVechicle.find({$and:[{prodId: checkProd._id},{makeId:makeId},{modelId:modelId}]});
-                if(checkProdVehModel.length > 0){
-                    message = {
-                        error: true,
-                        message:"Product exists with same make model",
-                        data: {}
-                    };
-                    return res.status(200).send(message);
-                } else {
-                    isProdExist = false;
-
-                }
-            } else {
-                isProdExist = false;
-            }
+    if (checkProd) {
+      let checkProdVehMake = await ProductVechicle.find({
+        $and: [{ prodId: checkProd._id }, { makeId: makeId }],
+      });
+      if (checkProdVehMake.length > 0) {
+        let checkProdVehModel = await ProductVechicle.find({
+          $and: [
+            { prodId: checkProd._id },
+            { makeId: makeId },
+            { modelId: modelId },
+          ],
+        });
+        if (checkProdVehModel.length > 0) {
+          message = {
+            error: true,
+            message: "Product exists with same make model",
+            data: {},
+          };
+          return res.status(200).send(message);
         } else {
-            isProdExist = false;
+          isProdExist = false;
         }
-
-        if(!isProdExist){
-            let portfoliData = {
-            'retailerId' : retailerId,
-            'partNo': partNo,
-            'title' : req.body.title,
-            'makeId':makeId,
-            'modelId':modelId,
-        }
-        let result = await RetailerProtfolio.create(portfoliData);
-        let portfolioList = await RetailerProtfolio.find({}).populate([
-            {
-                path:"makeId",
-                select:"title"
-            },
-            {
-                path:"modelId",
-                select:"title"
-            }
-        ]).sort({_id:-1});
-    
-        let retailerNotificationId = result._id;
-        let adminNotificationData = {
-            'retailerId' : retailerId,
-            'retailerNotificationId': retailerNotificationId,
-            'message':   "Unavailable item for retailer"  
-        }
-        await AdminNotification.create(adminNotificationData);
-            message = {
-                error: false,
-                message:" Your requirement has been sent successfully ",
-                data: portfolioList
-            };
-            return res.status(200).send(message);
+      } else {
+        isProdExist = false;
+      }
+    } else {
+      isProdExist = false;
     }
-    }catch(err){
-        message = {
-            error:true,
-            message:"Operation Failed",
-            data:err.toString()
-        }
-        return res.status(200).send(message);
+
+    if (!isProdExist) {
+      let portfoliData = {
+        retailerId: retailerId,
+        partNo: partNo,
+        title: req.body.title,
+        makeId: makeId,
+        modelId: modelId,
+      };
+      let result = await RetailerProtfolio.create(portfoliData);
+      let portfolioList = await RetailerProtfolio.find({})
+        .populate([
+          {
+            path: "makeId",
+            select: "title",
+          },
+          {
+            path: "modelId",
+            select: "title",
+          },
+        ])
+        .sort({ _id: -1 });
+
+      let retailerNotificationId = result._id;
+      let adminNotificationData = {
+        retailerId: retailerId,
+        retailerNotificationId: retailerNotificationId,
+        message: "Unavailable item for retailer",
+      };
+      await AdminNotification.create(adminNotificationData);
+      message = {
+        error: false,
+        message: " Your requirement has been sent successfully ",
+        data: portfolioList,
+      };
+      return res.status(200).send(message);
     }
-    
-})
+  } catch (err) {
+    message = {
+      error: true,
+      message: "Operation Failed",
+      data: err.toString(),
+    };
+    return res.status(200).send(message);
+  }
+});
 
-
-RetailerProtfolioRoute.get("/list",async(req,res)=>{
-  try{
-    let portfoliData = await RetailerProtfolio.find({}).populate([
+RetailerProtfolioRoute.get("/list", async (req, res) => {
+  try {
+    let portfoliData = await RetailerProtfolio.find({ isDelete: { $ne: true } })
+      .populate([
         {
-            path:"makeId",
-            select:"title"
+          path: "makeId",
+          select: "title",
         },
         {
-            path:"modelId",
-            select:"title"
-        }
-    ]).sort({_id:-1});
+          path: "modelId",
+          select: "title",
+        },
+      ])
+      .sort({ _id: -1 });
 
     message = {
-        error:false,
-        message:"List of portfolio",
-        data:portfoliData
-    }
+      error: false,
+      message: "List of portfolio",
+      data: portfoliData,
+    };
     res.status(200).send(message);
-  }catch(err){
+  } catch (err) {
     message = {
-        error:true,
-        message:"Operation Failed",
-        data:err.toString()
-    }
+      error: true,
+      message: "Operation Failed",
+      data: err.toString(),
+    };
     res.status(200).send(message);
   }
 });
@@ -293,7 +309,4 @@ RetailerProtfolioRoute.get("/list",async(req,res)=>{
 //     }
 // });
 
-
-
-
-module.exports = RetailerProtfolioRoute
+module.exports = RetailerProtfolioRoute;

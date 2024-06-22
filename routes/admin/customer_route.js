@@ -16,14 +16,15 @@ CustomerRoute.get("/list", isAuthenticate, async(req,res) => {
         let searchVal = {}
         if(searchText){
             searchVal = {
-                $or:[
-                    {"fname": {"$regex": searchText, $options: 'i'}},
-                    {"lname": {"$regex": searchText, $options: 'i'}},
-                    {"email": {"$regex": searchText, $options: 'i'}},
-                    {"mobile": {"$regex": searchText, $options: 'i'}},
-                    {"register_with": {"$regex": searchText, $options: 'i'}},
-                ]
-            }
+              $or: [
+                { fname: { $regex: searchText, $options: "i" } },
+                { lname: { $regex: searchText, $options: "i" } },
+                { email: { $regex: searchText, $options: "i" } },
+                { mobile: { $regex: searchText, $options: "i" } },
+                { register_with: { $regex: searchText, $options: "i" } },
+                { isDelete: { $ne: true } },
+              ],
+            };
         }
         let result = await User.find(searchVal).sort({_id:-1})
 
