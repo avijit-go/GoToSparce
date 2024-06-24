@@ -47,7 +47,6 @@ const AdminBrandRoute = require("./routes/admin/brand_route");
 const AdminNotificationRoute = require("./routes/admin/admin_notification_route");
 const VehicleTypeRoute = require("./routes/admin/vehicle_type_route");
 const VariantRoute = require("./routes/admin/variant_route");
-const VehicleRoute = require("./routes/admin/vehicle_route");
 const ModelYearRoute = require("./routes/admin/model_year_route");
 const ModelVariantRoute = require("./routes/admin/model_variant_route");
 const ProductVechicleRoute = require("./routes/admin/product_vehicle_route");
@@ -67,7 +66,6 @@ router.use("/admin/coupon", AdminCouponRoute);
 router.use("/admin/brand", AdminBrandRoute);
 router.use("/admin/notification", AdminNotificationRoute);
 router.use("/admin/variant", VariantRoute);
-router.use("/admin/vehicle", VehicleRoute);
 router.use("/admin/model-year", ModelYearRoute);
 router.use("/admin/model-variant", ModelVariantRoute);
 router.use("/admin/product_vehicle", ProductVechicleRoute);
@@ -109,7 +107,11 @@ router.use("/retailer/report", ReportManagmentRoute);
 
 /* ============================ Retailer routes ===================================== */
 const BrandRoute = require("./routes/brand_route");
+router.use("/brand", BrandRoute);
 
-router.use("/brand", BrandRoute)
+const VehicleRoute = require("./routes/vehicle_route");
+router.use("/vehicle", VehicleRoute)
+
+
 
 module.exports = router;
