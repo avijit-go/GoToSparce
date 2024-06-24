@@ -17,11 +17,12 @@ const errorMessage = require("../../helper/errorMessage");
  * Create product *
  */
 
-ProductRoute.post("/create", isAuthenticate, async (req, res) => {
+ProductRoute.post("/create", async (req, res) => {
   try {
     let catId = req.body.catId;
     let subcat0Id = req.body.subcat0Id;
     let subcat1Id = req.body.subcat1Id;
+    console.log(catId, subcat0Id, subcat1Id)
 
     let checkcatId = await Category.findOne({
       _id: catId,
@@ -582,70 +583,17 @@ ProductRoute.get(
   }
 );
 
-/**
- * list for product vehicle group
- */
 
-// ProductRoute.get("/vehicle-list",async(req,res)=>{
-//     try{
-//         //let searchText = req.query.searchText;
-//         let makeId = req.query.makeId;
-//         let modelId = req.query.modelId;
-//         let yearId = req.query.yearId;
-//         let variantId = req.query.variantId;
-
-//         let searchBy = {
-//             $and:[
-//                  {status:true}
-//                //{}
-//             ]
-//         }
-//         // if(searchText){
-//         //     searchBy.$and.push(
-//         //         {$or:[
-//         //             {title: {$regex: searchText, $options: 'i'}},
-//         //             //{partNo: {$regex: searchText, $options: 'i'}}
-//         //         ]}
-
-//         //     )
-//         // }
-
-//         if(makeId){
-//             searchBy.$and.push({makeId:makeId})
-//         }
-//         if(modelId){
-//             searchBy.$and.push({modelId:modelId})
-//         }
-//         if(yearId){
-//             searchBy.$and.push({yearId:yearId})
-//         }
-//         if(variantId){
-//             searchBy.$and.push({variantId:variantId})
-//         }
-
-//         // console.log(searchBy)
-
-//         let proVehicleList = await ProductVechicle.find(searchBy).populate([
-//             {path:"makeId", select:"title"},
-//             {path:"modelId", select:"title"},
-//             {path:"yearId", select:"title"},
-//             {path:"variantId", select:"title"},
-//         ]).sort({_id:-1});
-
-//         message = {
-//             error: false,
-//             message: "All Product Vechicle list",
-//             data: proVehicleList
-//         };
-//         res.status(200).send(message);
-//     } catch(err) {
-//         message = {
-//             error: true,
-//             message: "Oops! Something went wrong",
-//             data: err.toString(),
-//         };
-//         res.status(200).send(message);
-//     }
-// })
+/*
+* GET list of products related to the vehicle
+*/
+ProductRoute.get("/", async (req, res, next) => {
+  try {
+    const data = await Product.find({vehicleId: req.query.vehicleId});
+    return res.status(200).json({message: "Get list of products", status: 200, result: data})
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = ProductRoute;

@@ -88,7 +88,7 @@ CategoryRoute.post("/create", isAuthenticate, async (req, res) => {
 /**
  * This method is to find all category
  */
-CategoryRoute.get("/list", isAuthenticate, async (req, res) => {
+CategoryRoute.get("/list", async (req, res) => {
   try {
     let searchText = req.query.search;
     let searchVal = { parentId: undefined };
@@ -97,11 +97,10 @@ CategoryRoute.get("/list", isAuthenticate, async (req, res) => {
         $and: [
           { parentId: undefined },
           { title: { $regex: searchText, $options: "i" } },
-          { isDelete: { $ne: true } },
         ],
       };
     }
-    let CategoryData = await Category.find(searchVal).sort({ _id: -1 });
+    let CategoryData = await Category.find(searchVal).find({ isDelete: { $ne: true } }).sort({ _id: -1 });
 
     message = {
       error: false,
