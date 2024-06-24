@@ -1,7 +1,8 @@
 /** @format */
-
+require("dotenv").config();
 const express = require("express");
 const app = express();
+const fileUploader = require("express-fileupload")
 
 // const moment = require('moment-timezone');
 // let dateIndia = moment.tz(Date.now(), "Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
@@ -14,6 +15,13 @@ app.use(express.json());
 
 app.use(express.static("uploads"));
 app.use(express.static("front"));
+app.use(
+  fileUploader({
+    limits: { fileSize: 50 * 1024 * 1024 },
+    useTempFiles: true,
+    tempFileDir: "/tmp/",
+  })
+);
 
 const port = process.env.PORT || 10000;
 

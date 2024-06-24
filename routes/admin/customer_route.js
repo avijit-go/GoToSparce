@@ -10,7 +10,7 @@ const RetailerSupplier = require("../../models/retailersupplier");
 /*
 ** List users/ Customers
 */
-CustomerRoute.get("/list", isAuthenticate, async(req,res) => {
+CustomerRoute.get("/list", async(req,res) => {
     try{
         let searchText = req.query.search;
         let searchVal = {}
@@ -22,11 +22,11 @@ CustomerRoute.get("/list", isAuthenticate, async(req,res) => {
                 { email: { $regex: searchText, $options: "i" } },
                 { mobile: { $regex: searchText, $options: "i" } },
                 { register_with: { $regex: searchText, $options: "i" } },
-                { isDelete: { $ne: true } },
+                
               ],
             };
         }
-        let result = await User.find(searchVal).sort({_id:-1})
+        let result = await User.find(searchVal).find({isDelete: {$ne: true}}).sort({_id:-1})
 
         message = {
             error: false,

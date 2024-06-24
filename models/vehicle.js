@@ -5,6 +5,15 @@ const vehicleSchema = new mongoose.Schema({
     title:{
         type:String
     },
+    image: {
+        type: String,
+        default: ""
+    },
+    brand_name: {
+        type: String,
+        default: "",
+        index: true
+    },
     vehicle_type:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"vehicleTypes",
