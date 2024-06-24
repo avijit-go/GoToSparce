@@ -13,9 +13,8 @@ const Category = require("../models/category");
 CategoryRoute.get("/list", async (req, res) => {
   try {
     let CategoryData = await Category.find(
-      { parentId: undefined },
-      { isDelete: { $ne: true } }
-    ).sort({ _id: -1 });
+      { parentId: undefined }
+    ).find({ isDelete: { $ne: true } }).sort({ _id: -1 });
 
     let countData = CategoryData.length;
     message = {

@@ -35,7 +35,7 @@ OrderRoute.get("/list", async (req, res) => {
       };
     }
 
-    let orderData = await Order.find()
+    let orderData = await Order.find().find({isDelete: {$ne: true}})
       .populate([
         {
           path: "userId",
@@ -67,7 +67,7 @@ OrderRoute.get("/list", async (req, res) => {
 
 OrderRoute.get("/prolist", isAuthenticate, async (req, res) => {
   try {
-    let supplierData = await RetailerSupplier.find({ name: "GTS" });
+    let supplierData = await RetailerSupplier.find({ name: "GTS" }).find({isDelete: {$ne: true}})
     //console.log(supplierData);
 
     // let gtsId = supplierData?._id;

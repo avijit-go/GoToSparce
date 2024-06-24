@@ -14,6 +14,11 @@ const vehicleSchema = new mongoose.Schema({
         default: "",
         index: true
     },
+    vehicle_cat: {
+        type: String,
+        default: "",
+        index: true
+    },
     vehicle_type:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"vehicleTypes",

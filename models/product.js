@@ -7,7 +7,6 @@ const productSchema = new mongoose.Schema({
     title: { 
         type:String, 
         required:true,
-        // unique: true
     },
     retailerId:{
         type:mongoose.Schema.Types.ObjectId,
@@ -43,10 +42,6 @@ const productSchema = new mongoose.Schema({
         ref:"category",
         required: [true, "Category is requried"]
     },
-    // subcatId: {
-    //     type:mongoose.Schema.Types.ObjectId,
-    //     ref:"subCategories"
-    // },
     subcat0Id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "category",
@@ -67,15 +62,7 @@ const productSchema = new mongoose.Schema({
     mrp: {
         type: Number,
         required: true
-    },
-    // price: {
-    //     type: Number,
-    //     required: true
-    // }   ,
-    // retailerPrice: {
-    //     type: Number,
-    //     required: true,
-    // },    
+    },   
     retailerDiscountedPrice: {
         type: Number,
         required: true
@@ -84,10 +71,6 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    // customerPrice: {
-    //     type: Number,
-    //     required: true
-    // }, 
     customerDiscountedPrice: {
         type: Number,
         required: true
@@ -95,11 +78,7 @@ const productSchema = new mongoose.Schema({
     customerPricePercentage: {
         type: Number,
         required: true
-    },  
-    // status:{
-    //     type:Boolean,
-    //     default:true
-    // },
+    }, 
     specifications: [
         {
             key: {
@@ -114,50 +93,20 @@ const productSchema = new mongoose.Schema({
     ],
     images: {
        type: Array
-    },    
-    // makeId: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "make"
-    // },
+    },  
     brandId: {
         type: mongoose.Schema.Types.ObjectId,                   //OES
         ref: "brand"
     },
-    // vehicleId:{
-    //     type: mongoose.Schema.Types.ObjectId,                  
-    //     ref: "vehicles"
-    // },
-    // modelId: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "model"
-    // },
-    // yearId: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "year"
-    // },
-    // vehicleTypeId:{
-    //     type: mongoose.Schema.Types.ObjectId,                  
-    //     ref: "vehicleTypes"
-    // },
-    // variantId:{
-    //     type: mongoose.Schema.Types.ObjectId,                  
-    //     ref: "variants"
-    // },
     status: {
         type: Boolean,
         default: false
+    },
+    vehicleId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "vehicles"
     }
-}, {timestamps: true})
-
-/*productSchema.pre('save', async function(next) {
-    try {
-        // this.pro_no = 'GTS' + Date.now();
-        this.pro_no = 'GTS'+Math.floor(Math.random()*900) + 100;
-        next();
-    } catch (error) {
-        return next(error);
-    }
-});*/
+}, {timestamps: true});
 
 productSchema.plugin(uniqueValidator);
 const Product = new mongoose.model("products", productSchema)
