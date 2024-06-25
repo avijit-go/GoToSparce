@@ -54,11 +54,9 @@ ModelRoute.get("/list",isAuthenticate, async (req, res) => {
         if(searchText){            
             filterData.$and.push({title: {"$regex": searchText, $options: 'i'}},) 
         }
-
-        console.log(filterData)
                 
 
-        let ModelData = await Model.find(filterData).populate([
+        let ModelData = await Model.find(filterData).find({isDelete: {$ne: true}}).populate([
             {
                 path: 'makeId', 
                 select: 'title',

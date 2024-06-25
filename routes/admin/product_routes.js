@@ -169,7 +169,7 @@ ProductRoute.get("/list",isAuthenticate, async(req,res) => {
 
         console.log(searchBy)
 
-        let prodList = await Product.find(searchBy).populate([
+        let prodList = await Product.find(searchBy).find({isDelete: {$ne: true}}).populate([
             {path:"catId", select:"title"},
             {path:"subcat0Id", select:"title"},
             {path:"subcat1Id", select:"title"},
