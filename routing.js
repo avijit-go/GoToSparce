@@ -14,8 +14,11 @@ const ProductRoute = require("./routes/product_routes");
 const CategoryRoute = require("./routes/category_route");
 const HomeRoute = require("./routes/home_route");
 const CashfreeRoute = require("./routes/cashfree_payment_route");
+const ServiceRoute = require("./routes/service_route")
+const LocationRoute = require("./routes/location_route")
 
-
+router.use("/location", LocationRoute)
+router.use("/service", ServiceRoute)
 router.use("/admin", AdminRoute);
 router.use("/user", UserRoute);
 router.use("/file", fileUploadRouter);

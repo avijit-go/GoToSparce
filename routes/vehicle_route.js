@@ -56,27 +56,20 @@ router.put("/update/:vehicleId", async(req, res, next) => {
         if(!req.params.vehicleId) {
             return res.status(400).json({message: "Vehicle ID is not present"});
         } 
+        const originalVehicleData = await Vehicle.findById(req.params.vehicleId);
+        // console.log(originalVehicleData);
+        var imageURL = '';
         if(req.files) {
             const result = await cloudinary.uploader.upload(req.files.image.tempFilePath);
-            imageURL = result.url;
-            const updateVehicle = await Vehicle.findByIdAndUpdate(req.params.vehicleId, {$set: {
-                brand_name: req.body.brand_name,
-                vehicle_cat: req.body.vehicle_cat,
-                image: imageURL,
-                title: req.body.title
-            }}, {new: true})
-            return res.status(200).json({message: "Vehicle details updated", status:200, vehicle: updateVehicle})
+            imageURL = result.url
         }
-        else {
-            const updatedData = {
-                brand_name: req.body.brand_name,
-                vehicle_cat: req.body.vehicle_cat,
-                title: req.body.title
-            };
-            const updateVehicle = await Vehicle.findByIdAndUpdate(req.params.vehicleId, {$set: updatedData}, {new: true});
-            console.log("updateVehicle::", updateVehicle)
-            return res.status(200).json({message: "Vehicle details updated", status:200, vehicle: updateVehicle})
-        }
+        const updateVehicle = await Vehicle.findByIdAndUpdate(req.params.vehicleId, {$set: {
+            brand_name: req.body.brand_name,
+            vehicle_cat: req.body.vehicle_cat,
+            image: imageURL || originalVehicleData.image,
+            title: req.body.title
+        }}, {new: true})
+        return res.status(200).json({message: "Vehicle details updated", status:200, vehicle: updateVehicle})
     } catch (error) {
         next(error)
     }
