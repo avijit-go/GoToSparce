@@ -593,5 +593,14 @@ ProductRoute.delete("/delete/:id", async(req, res) => {
     return res.status(200).json({message: "Deleted review", status: 200, Product: updatedProduct})
 })
 
+ProductRoute.get("/get-list-products/:carId", async(req, res, next) => {
+    try {
+       const data = await Product.find({vehicleId: req.params.cardId});
+       return res.status(200).json({statu: 200, data}) 
+    } catch (error) {
+        next(error)
+    }
+})
+
 
 module.exports = ProductRoute;
