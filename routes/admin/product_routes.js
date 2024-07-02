@@ -22,7 +22,6 @@ ProductRoute.post("/create", async (req, res) => {
     let catId = req.body.catId;
     let subcat0Id = req.body.subcat0Id;
     let subcat1Id = req.body.subcat1Id;
-    console.log(catId, subcat0Id, subcat1Id)
 
     let checkcatId = await Category.findOne({
       _id: catId,
