@@ -17,7 +17,7 @@ router.post("/create", async(req, res, next) => {
     }
 });
 
-router.post("/list", async(req, res, next) => {
+router.get("/list", async(req, res, next) => {
     try {
         const data = await Location.find({})
         return res.status(201).json({message: "Location list", status: 200, locations: data})

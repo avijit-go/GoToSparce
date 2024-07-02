@@ -38,18 +38,16 @@ router.post("/create", async (req, res, next) => {
 
 router.get("/list", async (req, res, next) => {
     try {
-       const searchKey = req.query.search ? {
-        $or: [
-            { vehicle_cat: { $regex: req.query.catagory, $options: "i" } },
-            { brand_name: { $regex: req.query.brand_name, $options: "i" } },
-        ]
-       }  : {};
-       const vehicles = await Vehicle.find(searchKey).find({isDelete: {$ne: true}});
-       return res.status(200).json({message: "GET all listed vehicles", status: 200, vehicles})
+        const searchKey = req.query.brand_name ? {
+            brand_name: { $regex: req.query.brand_name, $options: "i" }
+        } : {};
+        const vehicles = await Vehicle.find(searchKey).find({isDelete: {$ne: true}});;
+        return res.status(200).json({ message: "GET all listed vehicles", status: 200, vehicles });
     } catch (error) {
         next(error)
     }
 });
+// 
 
 router.put("/update/:vehicleId", async(req, res, next) => {
     try {
