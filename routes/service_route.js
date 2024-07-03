@@ -124,7 +124,6 @@ router.post("/create-price", async(req, res, next) => {
             total_product_cost += products[i].price;
         }
         total_product_cost = Number(total_product_cost.toFixed(2));
-        /* Calculate GST */
         let GST_COST = ((total_product_cost * Number(process.env.GST_AMOUNT)) / 100);
         GST_COST = Number(GST_COST.toFixed(2));
         const total_cost = total_product_cost + GST_COST + Number(process.env.SERVICE_CHARGE);
@@ -133,7 +132,6 @@ router.post("/create-price", async(req, res, next) => {
     } catch (error) {
         next(error)
     }
-})
-
+});
 
 module.exports = router;
