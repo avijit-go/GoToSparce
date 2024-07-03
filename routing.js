@@ -113,7 +113,10 @@ const BrandRoute = require("./routes/brand_route");
 router.use("/brand", BrandRoute);
 
 const VehicleRoute = require("./routes/vehicle_route");
-router.use("/vehicle", VehicleRoute)
+router.use("/vehicle", VehicleRoute);
+
+const TimeslotRoute = require("./routes/timesllot_routes");
+router.use("/time-slot", TimeslotRoute)
 
 
 

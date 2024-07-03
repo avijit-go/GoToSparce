@@ -41,13 +41,24 @@ router.get("/list", async (req, res, next) => {
         const searchKey = req.query.brand_name ? {
             brand_name: { $regex: req.query.brand_name, $options: "i" }
         } : {};
-        const vehicles = await Vehicle.find(searchKey).find({isDelete: {$ne: true}});;
+        const vehicles = await Vehicle.find(searchKey).find({isDelete: {$ne: true}});
         return res.status(200).json({ message: "GET all listed vehicles", status: 200, vehicles });
     } catch (error) {
         next(error)
     }
 });
-// 
+
+router.get("/:id", async(req, res, next) => {
+    try {
+       if(!req.params.id) {
+        return res.status(400).json({message: 'Vehicle id is not defined', status: 400})
+       }
+       const result = await Vehicle.findById(req.params.id)
+       return res.status(200).json({message: "Get details of vehicle", status: 200, result})
+    } catch (error) {
+        next(error)
+    }
+})
 
 router.put("/update/:vehicleId", async(req, res, next) => {
     try {
