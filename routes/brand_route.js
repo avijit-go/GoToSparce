@@ -2,6 +2,7 @@
 
 const router = require("express").Router();
 const Brand = require("../models/brand");
+const mongoose = require("mongoose")
 
 router.get("/list", async (req, res, next) => {
   try {
@@ -18,6 +19,22 @@ router.get("/list", async (req, res, next) => {
         status: 200,
         brandList,
       });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/create", async (req, res, next) => {
+  try {
+    const data = await Brand({
+      _id: new mongoose.Types.ObjectId(),
+      title: req.body.title,
+      slug: req.body.slug,
+      desc: req.body.desc,
+      brandAsPopular: req.body.brandAsPopular
+    });
+    const result = await data.save();
+    return res.status(200).json(result)
   } catch (error) {
     next(error);
   }

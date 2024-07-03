@@ -7,30 +7,26 @@ router.post("/create", async(req, res, next) => {
     try {
        let totalPrice = 0;
        let productList = [];
-       for(let i=0; i<req.body.products.length; i++) {
-        totalPrice += req.body.products[i].price;
-        productList.push(req.body.products[i]._id);
-       } 
+    //    for(let i=0; i<req.body.products.length; i++) {
+    //     totalPrice += req.body.products[i].price;
+    //     productList.push(req.body.products[i]._id);
+    //    } 
     /* Calculate GST */
-    const result = (totalPrice * Number(process.env.GST_AMOUNT)) / 100;
+    // const result = (totalPrice * Number(process.env.GST_AMOUNT)) / 100;
     const newService = Service({
         _id: new mongoose.Types.ObjectId(),
         user: req.body.user,
         car: req.body.car,
-        products: productList,
-        vehicle_number: req.body.vehicle_number,
-        price: totalPrice,
-        gst: result,
-        total_price: result + totalPrice + Number(process.env.PICKUP_PRICE),
-        invoice_number: Math.floor(10000000 + Math.random() * 90000000),
+        brand: req.body.brand,
         service_date: req.body.service_date,
         service_time: req.body.service_time,
-        location: req.body.location
+        location: req.body.location,
+        pickup_drop: req.body.pickup_drop
     });
     let serviceData = await newService.save();
     serviceData = await serviceData.populate({path: "user", select: "fname lname email mobile"})
     serviceData = await serviceData.populate({path: "car", select: "title image brand_name"});
-    serviceData = await serviceData.populate("products");
+    // serviceData = await serviceData.populate("products");
     return res.status(200).json({message: "A new service has been created", status: 201, service: serviceData})
     } catch (error) {
        next(error) 
