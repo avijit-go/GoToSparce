@@ -115,5 +115,29 @@ router.get("/search-service", async(req, res, next) => {
     }
 });
 
+/* Create a service price */
+router.post("/create-price", async(req, res, next) => {
+    try {
+        const {products, pickup} = req.body;
+        // console.log(products)
+        let total_product_cost = 0;
+        for(let i=0; i<products.length; i++) {
+            total_product_cost += products[i].price;
+        }
+        total_product_cost = Number(total_product_cost.toFixed(2));
+        //console.log("Total product cost:",total_product_cost)
+        /* Calculate GST */
+        let GST_COST = ((total_product_cost * Number(process.env.GST_AMOUNT)) / 100);
+        GST_COST = Number(GST_COST.toFixed(2));
+        // console.log("GST cost:", GST_COST);
+        const total_cost = total_product_cost + GST_COST + 100;
+        //console.log("Total cost:", total_cost);
+        return res.status(200).json({message: "Total product cost", status: 200, total_product_cost, GST_COST, total_cost});
+
+    } catch (error) {
+        next(error)
+    }
+})
+
 
 module.exports = router;
