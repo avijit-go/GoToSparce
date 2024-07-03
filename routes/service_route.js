@@ -127,7 +127,7 @@ router.post("/create-price", async(req, res, next) => {
         let GST_COST = ((total_product_cost * Number(process.env.GST_AMOUNT)) / 100);
         GST_COST = Number(GST_COST.toFixed(2));
         const total_cost = total_product_cost + GST_COST + Number(process.env.SERVICE_CHARGE);
-        return res.status(200).json({message: "Total product cost", status: 200, cost: {"product cost": total_product_cost, "GST cost": GST_COST, "Total cost": total_cost, "Service charge": Number(process.env.SERVICE_CHARGE)}});
+        return res.status(200).json({message: "Total product cost", status: 200, cost: {"product_cost": total_product_cost, "GST_cost": GST_COST, "Total_cost": total_cost, "Service_charge": Number(process.env.SERVICE_CHARGE)}});
 
     } catch (error) {
         next(error)
