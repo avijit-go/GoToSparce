@@ -187,7 +187,7 @@ SupplierRoute.post("/search", isAuthenticate, async (req, res) => {
         error: false,
         message: "Supplier search successfully!",
         data: result,
-      };
+      }
 
       res.status(200).send(message);
     } else {
