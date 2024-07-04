@@ -41,7 +41,7 @@ router.get("/list", async (req, res, next) => {
         const searchKey = req.query.brand_name ? {
             brand_name: { $regex: req.query.brand_name, $options: "i" }
         } : {};
-        const vehicles = await Vehicle.find(searchKey).find({isDelete: {$ne: true}});
+        const vehicles = await Vehicle.find(searchKey).find({isDelete: {$ne: true}}).sort({createdAt: -1});
         return res.status(200).json({ message: "GET all listed vehicles", status: 200, vehicles });
     } catch (error) {
         next(error)
