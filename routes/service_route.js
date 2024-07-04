@@ -66,7 +66,7 @@ router.get("/user-list/:userId", async(req, res, next) => {
         const data = await Service.find(query)
         .populate({path: "user", select: "fname lname email mobile"})
         .populate({path: "car", select: "title image brand_name"})
-        .populate("products")
+        // .populate("products")
         .sort({createdAt: -1})
         .limit(limit)
         .skip(limit*(page-1));
