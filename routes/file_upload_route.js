@@ -49,6 +49,13 @@ const acceptedFileTypes = [
   "application/pdf",
   "text/csv",
 ];
+const cloudinary = require("cloudinary").v2;
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+  secure: true,
+});
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -65,6 +72,7 @@ const upload = multer({
 /**
  * This method is used upload files
  */
+/*
 fileUploadRouter.post(
   "/upload",
   upload.single("file"),
@@ -83,6 +91,25 @@ fileUploadRouter.post(
         error: false,
         // data: {file: req.file, fileData, fileName, fileurl}
         data: { fileName, fileurl },
+      });
+    } catch (error) {
+      res.status(200).send({
+        error: true,
+        mssage: String(error),
+      });
+    }
+  }
+);
+*/
+fileUploadRouter.post(
+  "/upload",
+  async (req, res, next) => {
+    try {
+      const result = await cloudinary.uploader.upload(req.files.file.tempFilePath);
+      res.status(200).send({
+        error: false,
+        // data: {file: req.file, fileData, fileName, fileurl}
+        data: { fileurl: result.url },
       });
     } catch (error) {
       res.status(200).send({
@@ -303,18 +330,4 @@ fileUploadRouter.post(
     }
   }
 );
-
-// const csvFunc = async (file) => {
-//     let results = [];
-//     console.log("file", file);
-//     app.locals.bucket.file(file).createReadStream()
-//     .pipe(csv({}))
-//     .on('data',(data) => results.push(data))
-//     .on('end', async() => {
-//         console.log(results);
-//         const res = await TradingLog.insertMany(results)
-//         return res;
-//     })
-// }
-
 module.exports = fileUploadRouter;
