@@ -51,9 +51,9 @@ const acceptedFileTypes = [
 ];
 const cloudinary = require("cloudinary").v2;
 cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET,
+  cloud_name: 'dodc8z1zk',
+  api_key: '711843686395988',
+  api_secret: '_0FabogEAHpmg6NFRCT00niu2EI',
   secure: true,
 });
 
