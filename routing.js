@@ -118,6 +118,8 @@ router.use("/vehicle", VehicleRoute);
 const TimeslotRoute = require("./routes/timesllot_routes");
 router.use("/time-slot", TimeslotRoute)
 
+const ServiceCenterRoute = require("./routes/service_center")
+router.use("/service-center", ServiceCenterRoute)
 
 
 module.exports = router;
