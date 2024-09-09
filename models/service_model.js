@@ -1,5 +1,18 @@
 const mongoose = require("mongoose");
 
+const statusHistorySchema = new mongoose.Schema({
+    status: {
+        type: String,
+        enum: ["pending", "accept", "inprogress", "complete", "cancel"],
+        default: "pending",
+        required: true
+    },
+    date: {
+        type: String, // Use String to store date in "dd/mm/yyyy" format
+        required: true
+    }
+});
+
 const serviceSchema = new mongoose.Schema({
     _id:{ type: mongoose.Schema.Types.ObjectId },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
@@ -18,9 +31,10 @@ const serviceSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ["pending", "accept", "inproress", "complete", "cancel"],
-        default: "accept",
+        default: "pending",
         index: true
     },
+    status_history: [statusHistorySchema],
 }, {timestamps: true});
 
 const Stock = new mongoose.model("Service",serviceSchema);

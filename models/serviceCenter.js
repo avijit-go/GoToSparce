@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const ServiceCenterSchema = mongoose.Schema({
     _id: {type: mongoose.Schema.Types.ObjectId},
+    name: {type: String},
     address: {type: String},
     phone: {type: String},
     status: {

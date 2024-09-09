@@ -11,6 +11,7 @@ router.post("/create", async(req, res, next) => {
         }
         const serviceCenterData = ServiceCenter({
             _id: new mongoose.Types.ObjectId(),
+            name: req.body.name,
             address: req.body.address,
             phone: req.body.phone
         });
@@ -39,7 +40,10 @@ router.put("/update/:id", async(req, res, next) => {
        if(originalData.status === "inactive") {
         return res.status(200).json({message: "Service center details has already been deleted", status: 200})
        }
-       const updatedData = await ServiceCenter.findByIdAndUpdate(req.params.id, {$set: {phone: req.body.phone || originalData.phone, address: req.body.address || originalData.address}}, {new: true});
+       const updatedData = await ServiceCenter.findByIdAndUpdate(req.params.id, {$set: {
+        name: req.body.name || originalData.name, 
+        phone: req.body.phone || originalData.phone, 
+        address: req.body.address || originalData.address}}, {new: true});
        return res.status(200).json({message: "Service center details has been updated", status: 200, data: updatedData})
     } catch (error) {
         next(error)

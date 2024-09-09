@@ -19,6 +19,7 @@ AddressRoute.post("/create", isAuthenticate, async (req, res) => {
     var user = UserId(token);
     var userId = user.data._id;
     var userType = user.data.register_with;
+    
 
     req.body.user_id = userId;
     req.body.user_type = userType;
