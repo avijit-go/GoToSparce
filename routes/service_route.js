@@ -7,22 +7,25 @@ router.post("/create", async(req, res, next) => {
     try {
        let totalPrice = 0;
        let productList = [];
-    //    for(let i=0; i<req.body.products.length; i++) {
-    //     totalPrice += req.body.products[i].price;
-    //     productList.push(req.body.products[i]._id);
-    //    } 
-    /* Calculate GST */
-    // const result = (totalPrice * Number(process.env.GST_AMOUNT)) / 100;
-    const newService = Service({
-        _id: new mongoose.Types.ObjectId(),
-        user: req.body.user,
-        car: req.body.car,
-        brand: req.body.brand,
-        service_date: req.body.service_date,
-        service_time: req.body.service_time,
-        location: req.body.location,
-        pickup_drop: req.body.pickup_drop
-    });
+       const date = new Date();
+       const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-based
+        const year = date.getFullYear();
+        let fullDate = `${day}/${month}/${year}`;
+
+        const newService = Service({
+            _id: new mongoose.Types.ObjectId(),
+            user: req.body.user,
+            car: req.body.car,
+            brand: req.body.brand,
+            service_date: req.body.service_date,
+            service_time: req.body.service_time,
+            location: req.body.location,
+            pickup_drop: req.body.pickup_drop,
+            status_history:{
+                status: "pending", date: fullDate
+            }
+        });
     let serviceData = await newService.save();
     serviceData = await serviceData.populate({path: "user", select: "fname lname email mobile"})
     serviceData = await serviceData.populate({path: "car", select: "title image brand_name"});
@@ -84,7 +87,22 @@ router.put("/status/:serviceId", async(req, res, next) => {
         if(!req.query.status) {
             return res.status(200).json({message: 'Invalid sstatus type', status: 400});
         }
-        const data = await Service.findByIdAndUpdate(req.params.serviceId, {$set: {status: req.query.status}}, {new: true});
+        const date = new Date();
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-based
+        const year = date.getFullYear();
+        let fullDate = `${day}/${month}/${year}`;
+        const data = await Service.findByIdAndUpdate(req.params.serviceId, 
+            {
+                $set: {status: req.query.status},
+                $push: {
+                    status_history: {
+                        status: req.query.status,
+                        date: req.body.date || fullDate
+                    }
+                }
+            }, 
+            {new: true});
         return res.status(200).json({message: "Service status has been updated", status: 200, service: data})
     } catch (error) {
        next(error) 
